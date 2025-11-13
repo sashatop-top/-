@@ -1,51 +1,80 @@
 from abc import ABC, abstractmethod
 from random import uniform
-# n = int(input())
-# m = int(input())
 
 
-# class Entity(ABC):
-#     def __init__(self,position: tuple[int, int]) -> None:
-#         self.position = position
+
+# def start(n:int, m:int, player_lvl:int)-> tuple["Board","Player"]:
+
+# class Board():
+#     def __init__(self, rows:int,cols:int,grid: list[list[tuple[]]],start: tuple[int,int],goal:tuple[int,int]) -> None:
+#         self.rows = rows
+#         self.cols = cols
+#         self.grid = grid
+#         self.start = start
+#         self.goal = goal
+
+#         def place(self,entity:Entity, pos: tuple[int,int]) -> None:
+
+
+
+
+
+
+
+
+class Entity(ABC):
+    def __init__(self,position: tuple[int, int]) -> None:
+        self.position = position
     
-#     @abstractmethod
-#     def symbol(self) -> str:
-#         pass
+    @abstractmethod
+    def symbol(self) -> str:
+        pass
 
 
-# class Damageable(ABC):
-#     def __init__(self, hp: float, max_hp: float) -> None:
-#         self.hp = hp
-#         self.max_hp = max_hp
+class Damageable(ABC):
+    def __init__(self, hp: float, max_hp: float) -> None:
+        self.hp = hp
+        self.max_hp = max_hp
     
-#     def is_alive(self) -> bool:
-#         if self.hp > 0:
-#             return True
-#         else:
-#             return False
+    def is_alive(self) -> bool:
+        if self.hp > 0:
+            return True
+        else:
+            return False
     
-#     def heal(self, amount: float) -> float:
-#         self.hp = self.hp + amount
-#         if self.hp > self.max_hp:
-#             self.hp = self.max_hp
-#         return self.hp
+    def heal(self, amount: float) -> float:
+        self.hp = self.hp + amount
+        if self.hp > self.max_hp:
+            self.hp = self.max_hp
+        return self.hp
     
-#     def take_damage(self, amount: float) -> float:
-#         self.hp = self.hp - amount
-#         return amount
+    def take_damage(self, amount: float) -> float:
+        self.hp = self.hp - amount
+        return amount
 
 
-# class Attacker(ABC):
-#     @abstractmethod
-#     def attack(self, target: Damageable) -> float:
-#         pass
+class Attacker(ABC):
+    @abstractmethod
+    def attack(self, target: Damageable) -> float:
+        pass
+        
+# class Player(Entity,Damageable,Attacker):
+#     def __init__(self,lvl:int,weapon:Weapon,inventory: dict[str,int], statuses: dict[str,int], rage:float = 1.0, accuracy:float=1.0,) -> None:
+#         self.lvl = lvl
+#         self.weapon = weapon
+#         self.inventory = inventory
+#         self.statuses = statuses
+#         self.rage = rage
+#         self.accuracy = accuracy
+    
+#     def move(self,d_row:int, d_col:int) -> None:
+        
 
+class Bonus(ABC, Entity):
 
-# class Bonus(ABC, Entity):
-
-#     @abstractmethod
-#     def apply(self, player: 'Player') -> None:
-#         pass
+    @abstractmethod
+    def apply(self, player: 'Player') -> None:
+        pass
 
 
 class Weapon(ABC):
@@ -184,8 +213,92 @@ class Revolver(RangedWeapon):
         else:
             return "Увы, ваш боезапас пуст!"
         
+class Medkit(Bonus):
+    def __init__(self):
+        self.power = uniform(10,40)
+    
+    def apply(self, player: 'Player') -> None:
+        #if in boi:
+        player.hell(self.power) 
+        #else
+        if "Medkit" in player.inventory:
+            player.invetory["Medkit"] += 1
+        else:
+            player.invetory[self] = 1
+
+class Rage(Bonus):
+    def __init__(self):
+        self.multiplier = uniform(0.1,1.0)
+
+    def apply(self, player: 'Player') -> None:
+        #if in boi:
+        player.rage += self.multiplier
+        #после боя вернуть обратно 
+        #else
+        if "Rage" in player.inventory:
+            player.invetory["Rage"] += 1
+        else:
+            player.invetory["Rage"] = 1
 
 
+class Arrows(Bonus): # нельзя купить
+    def __init__(self):
+        self.amount = uniform(1,20)
+
+    def apply(self, player: 'Player') -> None:
+        if isinstance(player.weapon,Bow):
+            player.inventory["BowAmmo"] += self.amount
+        else:
+            if "Arrows" in player.inventory:
+                player.invetory["Arrows"] += 1
+            else:
+                player.invetory["Arrows"] = 1
+
+class Bullets(Bonus):
+    def __init__(self) -> None:
+        self.amount = uniform(1,10)
+
+    def apply(self, player: 'Player') -> None:
+        if isinstance(player.weapon,Revolver):
+            player.inventory["RevAmmo"] += self.amount
+        else:
+            if "Bullets" in player.inventory:
+                player.invetory["Bullets"] += 1
+            else:
+                player.invetory["Bullets"] = 1
+
+class Accuracy(Bonus):
+    def __init__(self):
+        self.multiplier = uniform(0.1,1.0)
+        self.price:int = 50
+
+    def apply(self, player: 'Player') -> None:
+        #if in boi:
+        player.accuracy += self.multiplier
+        #после боя вернуть обратно 
+        #else
+        if "Accuracy" in player.inventory:
+            player.invetory["Accuracy"] += 1
+        else:
+            player.invetory["Accuracy"] = 1
+
+
+class Coins(Bonus):
+    def __init__(self):
+        self.amount = uniform(50,100)
+
+    def apply(self, player: 'Player') -> None:
+        if "Coins" in player.inventory:
+            player.inventory["Coins"] += self.amount
+        else:
+             player.inventory["Coins"] = self.amount
+
+
+
+
+
+
+        
 
 
 
